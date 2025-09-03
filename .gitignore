@@ -1,0 +1,6 @@
+.vscode
+
+build*/
+
+build-debug.bat
+run-debug.bat
