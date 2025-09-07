@@ -866,32 +866,7 @@ namespace i8086
 	// DAA
 	void I8086::DAA()
 	{
-
-		if (A.L > 9 || SF.A)
-		{
-			A.L += 6;
-			SF.A = 1;
-		}
-
-		else
-		{
-			SF.A = 0;
-		}
-
-		if (A.L > 0x9F || SF.C)
-		{
-			A.L += 0x60;
-			SF.C = 1;
-		}
-
-		else
-		{
-			SF.C = 0;
-		}
-
-		SF.CheckSign(A.L, 8);
-		SF.CheckZero(A.L, 8);
-		SF.CheckParity(A.L);
+		Instr::DAA(this);
 	}
 
 	// SUB r/m8, r8

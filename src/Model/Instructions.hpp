@@ -838,6 +838,62 @@ namespace i8086
 		}
 
 		/**
+		 * @brief Decimal Adjust for Addition (DAA) instruction.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method adjusts the value in the AL register after a BCD addition operation to ensure it is a valid BCD representation.
+		 * It modifies the AL register and updates the CPU flags accordingly.
+		 * 
+		 * @par Affected flags:
+		 * - Carry Flag (CF)
+		 * - Auxiliary Carry Flag (AF)
+		 * - Parity Flag (PF)
+		 * - Zero Flag (ZF)
+		 * - Sign Flag (SF)
+		 *
+		 * @par How the flags are affected:
+		 * - Carry flag is set if there is a carry out from the most significant digit after adjustment.
+		 * - Auxiliary carry flag is set if there is a carry out from the least significant nibble after adjustment.
+		 * - Parity flag is set if the least significant byte of the result has an even number of bits set.
+		 * - Zero flag is set if the result is zero.
+		 * - Sign flag is set if the most significant bit of the result is set.
+		 * 
+		 * @note
+		 * The DAA instruction assumes that the value in AL is the result of a previous addition operation involving BCD values.
+		 * If AL contains a non-BCD value, the result after DAA may not be meaningful.
+		 */
+		static void DAA(CPUState* state)
+		{
+			if ((state->A.L & 0x0F) > 9 || state->SF.A)
+			{
+				state->A.L += 6;
+				state->SF.A = 1;
+			}
+
+			else
+			{
+				state->SF.A = 0;
+			}
+
+			if (state->A.L > 0x9F || state->SF.C)
+			{
+				state->A.L += 0x60;
+				state->SF.C = 1;
+			}
+
+			else
+			{
+				state->SF.C = 0;
+			}
+
+			state->SF.CheckSign(state->A.L, 8);
+			state->SF.CheckZero(state->A.L, 8);
+			state->SF.CheckParity(state->A.L);
+		}
+
+		/**
 		 * @brief Sets a segment override for the next memory access.
 		 * 
 		 * @param reg The segment register to be used for the override.
@@ -849,7 +905,7 @@ namespace i8086
 		 * @note
 		 * This override is only valid for the next memory access and will be cleared afterwards.
 		 * Not all instructions support segment overrides.
-		*/
+		 */
 		static void RegisterOverride(const Register& reg, CPUState* state)
 		{
 			state->mRegisterOverride.pending = true;
