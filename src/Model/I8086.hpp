@@ -67,9 +67,7 @@ namespace i8086
 		void WriteRMOperand(u16 data, u8 operandSize);
 		
 		/* Instructions */
-
-		void INC(Register& reg);
-		void DEC(Register& reg);
+		
 		void PUSH(Register& reg);
 		void PUSH(u16 value);
 		void POP(Register& reg);
