@@ -837,6 +837,25 @@ namespace i8086
 			return MASK(result, state->OperandSize);
 		}
 
+		/**
+		 * @brief Sets a segment override for the next memory access.
+		 * 
+		 * @param reg The segment register to be used for the override.
+		 * @param state The current CPU state.
+		 * 
+		 * @details
+		 * This method sets a segment override for the next memory access by updating the CPU state's mRegisterOverride.
+		 * 
+		 * @note
+		 * This override is only valid for the next memory access and will be cleared afterwards.
+		 * Not all instructions support segment overrides.
+		*/
+		static void RegisterOverride(const Register& reg, CPUState* state)
+		{
+			state->mRegisterOverride.pending = true;
+			state->mRegisterOverride.segment = reg;
+		}
+
 	};
 
 } // namespace i8086

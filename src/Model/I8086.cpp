@@ -860,8 +860,7 @@ namespace i8086
 
 	void I8086::ES_OVERRIDE()
 	{
-		mRegisterOverride.pending = true;
-		mRegisterOverride.segment = ES;
+		Instr::RegisterOverride(ES, this);
 	}
 
 	// DAA
@@ -935,8 +934,7 @@ namespace i8086
 
 	void I8086::CS_OVERRIDE()
 	{
-		mRegisterOverride.pending = true;
-		mRegisterOverride.segment = CS;
+		Instr::RegisterOverride(CS, this);
 	}
 
 	// DAS
@@ -1010,8 +1008,7 @@ namespace i8086
 
 	void I8086::SS_OVERRIDE()
 	{
-		mRegisterOverride.pending = true;
-		mRegisterOverride.segment = SS;
+		Instr::RegisterOverride(SS, this);
 	}
 
 	// AAA
@@ -1069,8 +1066,7 @@ namespace i8086
 
 	void I8086::DS_OVERRIDE()
 	{
-		mRegisterOverride.pending = true;
-		mRegisterOverride.segment = DS;
+		Instr::RegisterOverride(DS, this);
 	}
 
 	// AAS
