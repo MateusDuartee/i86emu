@@ -5,9 +5,14 @@
 #pragma once
 
 #include "CPUState.hpp"
+#include "Register.hpp"
+#include "MemoryBus.hpp"
 
 namespace i8086
 {
+
+	constexpr u8 WORD = 16;
+	constexpr u8 BYTE = 8;
 	
 	/**
 	* @class Instr
@@ -269,6 +274,198 @@ namespace i8086
 			sf.CheckSign(result, 16);
 
 			--reg.X;
+		}
+
+		/**
+		 * @brief ASCII Adjust for Addition (AAA) instruction.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method adjusts the value in the AL register after an addition operation involving ASCII values to ensure it is a valid BCD representation.
+		 * It modifies both the AL and AH registers and updates the Auxiliary Carry and Carry flags accordingly.
+		 * 
+		 * @par Affected flags:
+		 * - Auxiliary Carry Flag (AF)
+		 * - Carry Flag (CF)
+		 *
+		 * @par How the flags are affected:
+		 * - Auxiliary carry flag is set if there is a carry out from the least significant nibble after adjustment.
+		 * - Carry flag is set if there is a carry out from the most significant digit after adjustment.
+		 * 
+		 * @note
+		 * The AAA instruction assumes that the value in AL is the result of a previous addition operation involving ASCII values.
+		 * If AL contains a non-ASCII value, the result after AAA may not be meaningful.
+		 */
+		static void AAA(CPUState* state)
+		{
+			if (((state->A.L & 0x0F) > 9) || state->SF.A)
+			{
+				state->A.L += 6;
+				state->A.H += 1;
+				state->SF.A = 1;
+				state->SF.C = 1;
+			}
+
+			else
+			{
+				state->SF.A = 0;
+				state->SF.C = 0;
+			}
+
+			state->A.L &= 0x0F;
+		}
+
+		/**
+		 * @brief ASCII Adjust for Subtraction (AAS) instruction.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method adjusts the value in the AL register after a subtraction operation involving ASCII values to ensure it is a valid BCD representation.
+		 * It modifies both the AL and AH registers and updates the Auxiliary Carry and Carry flags accordingly.
+		 * 
+		 * @par Affected flags:
+		 * - Auxiliary Carry Flag (AF)
+		 * - Carry Flag (CF)
+		 *
+		 * @par How the flags are affected:
+		 * - Auxiliary carry flag is set if there is a borrow from the least significant nibble after adjustment.
+		 * - Carry flag is set if there is a borrow from the most significant digit after adjustment.
+		 * 
+		 * @note
+		 * The AAS instruction assumes that the value in AL is the result of a previous subtraction operation involving ASCII values.
+		 * If AL contains a non-ASCII value, the result after AAS may not be meaningful.
+		 */
+		static void AAS(CPUState* state)
+		{
+			if ((state->A.L & 0x0F) > 9 || state->SF.A)
+			{
+				state->A.L -= 6;
+				state->A.H -= 1;
+				state->SF.A = 1;
+				state->SF.C = 1;
+			}
+
+			else
+			{
+				state->SF.C = 0;
+				state->SF.A = 0;
+			}
+
+			state->A.L &= 0x0F;
+		}
+
+		/**
+		 * @brief Decimal Adjust for Addition (DAA) instruction.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method adjusts the value in the AL register after a BCD addition operation to ensure it is a valid BCD representation.
+		 * It modifies the AL register and updates the CPU flags accordingly.
+		 * 
+		 * @par Affected flags:
+		 * - Carry Flag (CF)
+		 * - Auxiliary Carry Flag (AF)
+		 * - Parity Flag (PF)
+		 * - Zero Flag (ZF)
+		 * - Sign Flag (SF)
+		 *
+		 * @par How the flags are affected:
+		 * - Carry flag is set if there is a carry out from the most significant digit after adjustment.
+		 * - Auxiliary carry flag is set if there is a carry out from the least significant nibble after adjustment.
+		 * - Parity flag is set if the least significant byte of the result has an even number of bits set.
+		 * - Zero flag is set if the result is zero.
+		 * - Sign flag is set if the most significant bit of the result is set.
+		 * 
+		 * @note
+		 * The DAA instruction assumes that the value in AL is the result of a previous addition operation involving BCD values.
+		 * If AL contains a non-BCD value, the result after DAA may not be meaningful.
+		 */
+		static void DAA(CPUState* state)
+		{
+			if ((state->A.L & 0x0F) > 9 || state->SF.A)
+			{
+				state->A.L += 6;
+				state->SF.A = 1;
+			}
+
+			else
+			{
+				state->SF.A = 0;
+			}
+
+			if (state->A.L > 0x9F || state->SF.C)
+			{
+				state->A.L += 0x60;
+				state->SF.C = 1;
+			}
+
+			else
+			{
+				state->SF.C = 0;
+			}
+
+			state->SF.CheckSign(state->A.L, 8);
+			state->SF.CheckZero(state->A.L, 8);
+			state->SF.CheckParity(state->A.L);
+		}
+
+		/**
+		 * @brief Decimal Adjust for Subtraction (DAS) instruction.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method adjusts the value in the AL register after a BCD subtraction operation to ensure it is a valid BCD representation.
+		 * It modifies the AL register and updates the CPU flags accordingly.
+		 * 
+		 * @par Affected flags:
+		 * - Carry Flag (CF)
+		 * - Auxiliary Carry Flag (AF)
+		 * - Parity Flag (PF)
+		 * - Zero Flag (ZF)
+		 * - Sign Flag (SF)
+		 *
+		 * @par How the flags are affected:
+		 * - Carry flag is set if there is a borrow from the most significant digit after adjustment.
+		 * - Auxiliary carry flag is set if there is a borrow from the least significant nibble after adjustment.
+		 * - Parity flag is set if the least significant byte of the result has an even number of bits set.
+		 * - Zero flag is set if the result is zero.
+		 * - Sign flag is set if the most significant bit of the result is set.
+		 * 
+		 * @note
+		 * The DAS instruction assumes that the value in AL is the result of a previous subtraction operation involving BCD values.
+		 * If AL contains a non-BCD value, the result after DAS may not be meaningful.
+		 */
+		static void DAS(CPUState* state)
+		{
+			if ((state->A.L & 0x0F) > 9 || state->SF.A)
+			{
+				state->A.L -= 6;
+				state->SF.A = 1;
+			}
+
+			else
+			{
+				state->SF.A = 0;
+			}
+
+			if (state->A.L > 0x9F || state->SF.C)
+			{
+				state->A.L -= 0x60;
+				state->SF.C = 1;
+			}
+
+			else
+			{
+				state->SF.C = 0;
+			}
+
+			state->SF.CheckSign(state->A.L, 8);
+			state->SF.CheckZero(state->A.L, 8);
+			state->SF.CheckParity(state->A.L);
 		}
 
 		/*============================================================
@@ -837,61 +1034,148 @@ namespace i8086
 			return MASK(result, state->OperandSize);
 		}
 
+		/*===========================================================
+		  =================== Data movement =========================
+		  ===========================================================*/
+
 		/**
-		 * @brief Decimal Adjust for Addition (DAA) instruction.
+		 * @brief Pushes a register onto the stack.
 		 *
+		 * @param reg The register containing the value to be pushed.
 		 * @param state The current CPU state.
+		 * @param bus The memory bus for writing to memory.
 		 *
 		 * @details
-		 * This method adjusts the value in the AL register after a BCD addition operation to ensure it is a valid BCD representation.
-		 * It modifies the AL register and updates the CPU flags accordingly.
+		 * This method pushes a 16-bit value from a register onto the stack by decrementing the stack pointer and writing the value to memory.
 		 * 
-		 * @par Affected flags:
-		 * - Carry Flag (CF)
-		 * - Auxiliary Carry Flag (AF)
-		 * - Parity Flag (PF)
-		 * - Zero Flag (ZF)
-		 * - Sign Flag (SF)
-		 *
-		 * @par How the flags are affected:
-		 * - Carry flag is set if there is a carry out from the most significant digit after adjustment.
-		 * - Auxiliary carry flag is set if there is a carry out from the least significant nibble after adjustment.
-		 * - Parity flag is set if the least significant byte of the result has an even number of bits set.
-		 * - Zero flag is set if the result is zero.
-		 * - Sign flag is set if the most significant bit of the result is set.
+		 * @par Stack Growth:
+		 * The stack grows downwards in memory, meaning that pushing a value decreases the stack pointer (SP).
 		 * 
 		 * @note
-		 * The DAA instruction assumes that the value in AL is the result of a previous addition operation involving BCD values.
-		 * If AL contains a non-BCD value, the result after DAA may not be meaningful.
+		 * The stack segment (SS) is used as the segment for the stack operations.
+		 * The method assumes that the stack has enough space to accommodate the push operation.
 		 */
-		static void DAA(CPUState* state)
+		static void PUSH(const Register& reg, CPUState* state, MemoryBus* bus)
 		{
-			if ((state->A.L & 0x0F) > 9 || state->SF.A)
-			{
-				state->A.L += 6;
-				state->SF.A = 1;
-			}
-
-			else
-			{
-				state->SF.A = 0;
-			}
-
-			if (state->A.L > 0x9F || state->SF.C)
-			{
-				state->A.L += 0x60;
-				state->SF.C = 1;
-			}
-
-			else
-			{
-				state->SF.C = 0;
-			}
-
-			state->SF.CheckSign(state->A.L, 8);
-			state->SF.CheckZero(state->A.L, 8);
-			state->SF.CheckParity(state->A.L);
+			state->SP.X -= 2;
+			bus->Write(state->SP.X, reg.X, state->SS, WORD);
 		}
+
+		/**
+		 * @brief Pushes a 16-bit value onto the stack.
+		 *
+		 * @param value The 16-bit value to be pushed onto the stack.
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for writing to memory.
+		 *
+		 * @details
+		 * This method pushes a 16-bit value onto the stack by decrementing the stack pointer and writing the value to memory.
+		 * 
+		 * @par Stack Growth:
+		 * The stack grows downwards in memory, meaning that pushing a value decreases the stack pointer (SP).
+		 * 
+		 * @note
+		 * The stack segment (SS) is used as the segment for the stack operations.
+		 * The method assumes that the stack has enough space to accommodate the push operation.
+		 */
+		static void PUSH(u16 value, CPUState* state, MemoryBus* bus)
+		{
+			state->SP.X -= 2;
+			bus->Write(state->SP.X, value, state->SS, WORD);
+		}
+
+		/**
+		 * @brief Pops a value from the stack into a register.
+		 *
+		 * @param reg The register to store the popped value.
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading from memory.
+		 *
+		 * @details
+		 * This method pops a 16-bit value from the stack into a register by reading the value from memory and incrementing the stack pointer.
+		 * 
+		 * @par Stack Growth:
+		 * The stack grows downwards in memory, meaning that popping a value increases the stack pointer (SP).
+		 * 
+		 * @note
+		 * The stack segment (SS) is used as the segment for the stack operations.
+		 * The method assumes that there are enough values on the stack to accommodate the pop operation.
+		 */
+		static void POP(Register& reg, CPUState* state, const MemoryBus* bus)
+		{
+			reg.X = bus->Read(state->SP.X, state->SS, WORD);
+			state->SP.X += 2;
+		}
+
+		/**
+		 * @brief Pops a value from the stack.
+		 *
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading from memory.
+		 * @return The 16-bit value popped from the stack.
+		 *
+		 * @details
+		 * This method pops a 16-bit value from the stack by reading the value from memory and incrementing the stack pointer.
+		 * 
+		 * @par Stack Growth:
+		 * The stack grows downwards in memory, meaning that popping a value increases the stack pointer (SP).
+		 * 
+		 * @note
+		 * The stack segment (SS) is used as the segment for the stack operations.
+		 * The method assumes that there are enough values on the stack to accommodate the pop operation.
+		 */
+		static u16 POP(CPUState* state, const MemoryBus* bus)
+		{
+			state->SP.X += 2;
+			return bus->Read(state->SP.X - 2, state->SS, WORD);
+		}
+
+		/*===========================================================
+		  ======================= Interrupt =========================
+		  ==========================================================*/
+
+		/**
+		 * @brief Handles a software interrupt.
+		 * 
+		 * @param interruptNumber The interrupt vector number.
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading and writing memory.
+		 * 
+		 * @details
+		 * This method handles a software interrupt by pushing the current flags, code segment, and instruction pointer onto the stack,
+		 * then loading the new instruction pointer and code segment from the interrupt vector table.
+		 * It also clears the interrupt and trap flags, and resumes execution if the CPU was halted.
+		 * 
+		 * @par Affected flags:
+		 * - Interrupt Flag (IF)
+		 * - Trap Flag (TF)
+		 * 
+		 * @par How the flags are affected:
+		 * - Interrupt flag is cleared to disable further interrupts.
+		 * - Trap flag is cleared to disable single-step mode.
+		 * 
+		 * @note
+		 * The interrupt vector table is located at the beginning of memory, with each entry consisting of a 4-byte segment:offset pair.
+		 * The interrupt number is used to index into this table to find the appropriate handler.
+		 */
+		static void INT(u8 interruptNumber, CPUState* state, MemoryBus* bus)
+		{
+			PUSH(state->SF.Get(), state, bus);
+			PUSH(state->CS, state, bus);
+			PUSH(state->IP, state, bus);
+
+			state->IP = bus->Read(interruptNumber, state->CS, WORD);
+			state->CS = bus->Read(interruptNumber + 2, state->CS, WORD);
+
+			state->SF.I = 0;
+			state->SF.T = 0;
+
+			state->mHalted = false;
+		}
+
+		/*============================================================
+		  ========================= Prefix ===========================
+		  ============================================================*/
 
 		/**
 		 * @brief Sets a segment override for the next memory access.

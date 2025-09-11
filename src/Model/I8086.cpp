@@ -11,9 +11,6 @@
 namespace i8086
 {
 
-	constexpr u8 WORD = 16;
-	constexpr u8 BYTE = 8;
-
 	I8086::I8086(MemoryBus* const bus) : mBus(bus)
 	{
 		SP = 0xFFFE;
@@ -557,47 +554,6 @@ namespace i8086
 		return mRegs16[reg]->X;
 	}
 
-	/* INSTRUCTIONS */
-
-	void I8086::PUSH(Register& reg)
-	{
-		SP.X -= 2;
-		mBus->Write(SP.X, reg.X, SS, WORD);
-	}
-
-	void I8086::PUSH(u16 value)
-	{
-		SP.X -= 2;
-		mBus->Write(SP.X, value, SS, WORD);
-	}
-
-	void I8086::POP(Register& reg)
-	{
-		reg.X = mBus->Read(SP.X, SS, WORD);
-		SP.X += 2;
-	}
-
-	u16 I8086::POP()
-	{
-		SP.X += 2;
-		return mBus->Read(SP.X - 2, SS, WORD);
-	}
-
-	void I8086::INT(u8 interruptNumber)
-	{
-		PUSH(SF.Get());
-		PUSH(CS);
-		PUSH(IP);
-
-		IP = mBus->Read(interruptNumber, CS, WORD);
-		CS = mBus->Read(interruptNumber + 2, CS, WORD);
-
-		SF.I = 0;
-		SF.T = 0;
-
-		mHalted = false;
-	}
-
 	u16 I8086::ReadRMOperand(u8 operandSize) const
 	{
 		if (Mod == 3)
@@ -664,13 +620,13 @@ namespace i8086
 	// PUSH ES
 	void I8086::PUSH_ES()
 	{
-		PUSH(ES);
+		Instr::PUSH(ES, this, mBus);
 	}
 
 	// POP ES
 	void I8086::POP_ES()
 	{
-		POP(ES);
+		Instr::POP(ES, this, mBus);
 	}
 
 	// OR r/m, r
@@ -761,13 +717,13 @@ namespace i8086
 	// PUSH SS
 	void I8086::PUSH_SS()
 	{
-		PUSH(SS);
+		Instr::PUSH(SS, this, mBus);
 	}
 
 	// POP SS
 	void I8086::POP_SS()
 	{
-		POP(SS);
+		Instr::POP(SS, this, mBus);
 	}
 
 	// SBB r/m8, r8
@@ -811,13 +767,13 @@ namespace i8086
 	// PUSH DS
 	void I8086::PUSH_DS()
 	{
-		PUSH(DS);
+		Instr::PUSH(DS, this, mBus);
 	}
 
 	// POP DS
 	void I8086::POP_DS()
 	{
-		POP(DS);
+		Instr::POP(DS, this, mBus);
 	}
 
 	// AND r/m8, r8
@@ -915,32 +871,7 @@ namespace i8086
 	// DAS
 	void I8086::DAS()
 	{
-
-		if (A.L > 9 || SF.A)
-		{
-			A.L -= 6;
-			SF.A = 1;
-		}
-
-		else
-		{
-			SF.A = 0;
-		}
-
-		if (A.L > 0x9F || SF.C)
-		{
-			A.L -= 0x60;
-			SF.C = 1;
-		}
-
-		else
-		{
-			SF.C = 0;
-		}
-
-		SF.CheckSign(A.L, 8);
-		SF.CheckZero(A.L, 8);
-		SF.CheckParity(A.L);
+		Instr::DAS(this);
 	}
 
 	// XOR r/m, r
@@ -989,22 +920,7 @@ namespace i8086
 	// AAA
 	void I8086::AAA()
 	{
-		if (A.L > 9 || SF.A)
-		{
-			A.L += 6;
-			A.H += 1;
-			SF.A = 1;
-			SF.C = 1;
-		}
-
-		else
-		{
-			SF.A = 0;
-			SF.C = 0;
-		}
-
-		A.L &= 0x0F; // Clear upper nibble
-
+		Instr::AAA(this);
 	}
 
 	// CMP r/m8, r8
@@ -1047,23 +963,7 @@ namespace i8086
 	// AAS
 	void I8086::AAS()
 	{
-
-		if (A.L > 9 || SF.A)
-		{
-			A.L -= 6;
-			A.H -= 1;
-			SF.A = 1;
-		}
-
-		else
-		{
-			SF.A = 0;
-		}
-
-		SF.C = SF.A;
-
-		A.L &= 0x0F;
-
+		Instr::AAS(this);
 	}
 
 	// INC AX
@@ -1165,97 +1065,97 @@ namespace i8086
 	// PUSH AX
 	void I8086::PUSH_AX()
 	{
-		PUSH(A);
+		Instr::PUSH(A, this, mBus);
 	}
 
 	// PUSH CX
 	void I8086::PUSH_CX()
 	{
-		PUSH(C);
+		Instr::PUSH(C, this, mBus);
 	}
 
 	// PUSH DX
 	void I8086::PUSH_DX()
 	{
-		PUSH(D);
+		Instr::PUSH(D, this, mBus);
 	}
 
 	// PUSH BX
 	void I8086::PUSH_BX()
 	{
-		PUSH(B);
+		Instr::PUSH(B, this, mBus);
 	}
 
 	// PUSH SP
 	void I8086::PUSH_SP()
 	{
-		PUSH(SP);
+		Instr::PUSH(SP, this, mBus);
 	}
 
 	// PUSH BP
 	void I8086::PUSH_BP()
 	{
-		PUSH(BP);
+		Instr::PUSH(BP, this, mBus);
 	}
 
 	// PUSH SI
 	void I8086::PUSH_SI()
 	{
-		PUSH(SI);
+		Instr::PUSH(SI, this, mBus);
 	}
 
 	// PUSH DI
 	void I8086::PUSH_DI()
 	{
-		PUSH(DI);
+		Instr::PUSH(DI, this, mBus);
 	}
 
 	// POP AX
 	void I8086::POP_AX()
 	{
-		POP(A);
+		Instr::POP(A, this, mBus);
 	}
 
 	// POP CX
 	void I8086::POP_CX()
 	{
-		POP(C);
+		Instr::POP(C, this, mBus);
 	}
 
 	// POP DX
 	void I8086::POP_DX()
 	{
-		POP(D);
+		Instr::POP(D, this, mBus);
 	}
 
 	// POP BX
 	void I8086::POP_BX()
 	{
-		POP(B);
+		Instr::POP(B, this, mBus);
 	}
 
 	// POP SP
 	void I8086::POP_SP()
 	{
-		POP(SP);
+		Instr::POP(SP, this, mBus);
 	}
 
 	// POP BP
 	void I8086::POP_BP()
 	{
-		POP(BP);
+		Instr::POP(BP, this, mBus);
 	}
 
 	// POP SI
 	void I8086::POP_SI()
 	{
-		POP(SI);
+		Instr::POP(SI, this, mBus);
 	}
 
 	// POP DI
 	void I8086::POP_DI()
 	{
-		POP(DI);
+		Instr::POP(DI, this, mBus);
 	}
 
 	// JO rel8
@@ -1825,7 +1725,7 @@ namespace i8086
 
 			CalculateEffectiveAddress();
 
-			WriteRMOperand(POP(), WORD);
+			WriteRMOperand(Instr::POP(this, mBus), WORD);
 			
 		}
 	}
@@ -1933,8 +1833,8 @@ namespace i8086
 		const u16 addr = Fetch(WORD);
 		const u16 segment = Fetch(WORD);
 
-		PUSH(CS);
-		PUSH(IP);
+		Instr::PUSH(CS, this, mBus);
+		Instr::PUSH(IP, this, mBus);
 
 		IP = addr;
 		CS = segment;
@@ -1951,7 +1851,7 @@ namespace i8086
 	void I8086::PUSHF()
 	{
 		const u16 flags = SF.Get();
-		PUSH(flags);
+		Instr::PUSH(flags, this, mBus);
 	}
 
 	// POPF
@@ -2300,7 +2200,7 @@ namespace i8086
 	{
 		const u16 offset = Fetch(WORD);
 
-		POP(IP);
+		Instr::POP(IP, this, mBus);
 
 		SP += offset;
 	}
@@ -2308,7 +2208,7 @@ namespace i8086
 	// RET
 	void I8086::RET()
 	{
-		POP(IP);
+		Instr::POP(IP, this, mBus);
 	}
 
 	// LES r16, [addr]
@@ -2371,8 +2271,8 @@ namespace i8086
 	{
 		const u16 offset = Fetch(WORD);
 
-		POP(IP);
-		POP(CS);
+		Instr::POP(IP, this, mBus);
+		Instr::POP(CS, this, mBus);
 
 		SP += offset;
 
@@ -2381,14 +2281,14 @@ namespace i8086
 	// RETF
 	void I8086::RETF()
 	{
-		POP(IP);
-		POP(CS);
+		Instr::POP(IP, this, mBus);
+		Instr::POP(CS, this, mBus);
 	}
 
 	// INT 3 - Breakpoint interrupt
 	void I8086::INT3()
 	{
-		INT(3);
+		Instr::INT(3, this, mBus);
 	}
 
 	// INT i8 - Software interrupt
@@ -2396,7 +2296,7 @@ namespace i8086
 	{
 		const u8 interrupt = Fetch() * 4;
 
-		INT(interrupt);
+		Instr::INT(interrupt, this, mBus);
 	}
 
 	// INTO - Interrupt on overflow
@@ -2404,15 +2304,15 @@ namespace i8086
 	{
 		if (SF.O)
 		{
-			INT(4);
+			Instr::INT(4, this, mBus);
 		}
 	}
 
 	// IRET - Interrupt return
 	void I8086::IRET()
 	{
-		POP(IP);
-		POP(CS);
+		Instr::POP(IP, this, mBus);
+		Instr::POP(CS, this, mBus);
 		POPF(); // POPF instruction
 	}
 
@@ -2563,7 +2463,7 @@ namespace i8086
 	{
 		const u16 offset = Fetch(WORD);
 
-		PUSH(IP.X);
+		Instr::PUSH(IP.X, this, mBus);
 
 		IP += offset;
 

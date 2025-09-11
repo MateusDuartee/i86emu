@@ -52,12 +52,6 @@ namespace i8086
 		void WriteRMOperand(u16 data, u8 operandSize);
 		
 		/* Instructions */
-		
-		void PUSH(Register& reg);
-		void PUSH(u16 value);
-		void POP(Register& reg);
-		u16 POP();
-		void INT(u8 interruptNumber);
 
 		void ADD_RM_R();
 		void ADD_R_RM();
