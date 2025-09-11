@@ -51,8 +51,22 @@ namespace i8086
 		Register SS{}; // Stack Segment
 		Register ES{}; // Extra Segment
 
+		/* Registers Maps */
+
+		std::array<Register*, 8> mRegs16 = {
+			&A, &C, &D, &B, &SP, &BP, &SI, &DI
+		};
+
+		std::array<RegByte*, 8> mRegs8 = {
+			&A.L, &C.L, &D.L, &B.L, &A.H, &C.H, &D.H, &B.H
+		};
+
 		/* other auxiliary fields */
 
+		bool mStepMode{ false };
+		bool mREP{ false };
+		bool mHalted{ false };
+		bool mPendingInterruptFlag{ false };
 		Register mSeg{}; // Current Segment Register
 		RegisterOverride mRegisterOverride{}; // segment override status
 		u16 EA{ 0 }; // Effective Address

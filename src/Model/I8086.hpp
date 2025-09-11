@@ -46,21 +46,6 @@ namespace i8086
 		std::vector<u32> mBreakpoints;
 		std::array<void (I8086::*)(), 256> mOpcodeTable;
 
-		bool mStepMode{ false };
-		bool mREP{ false };
-		bool mHalted{ false };
-		bool mPendingInterruptFlag{ false };
-
-		/* Registers Maps */
-
-		std::array<Register*, 8> mRegs16 = {
-			&A, &C, &D, &B, &SP, &BP, &SI, &DI
-		};
-
-		std::array<RegByte*, 8> mRegs8 = {
-			&A.L, &C.L, &D.L, &B.L, &A.H, &C.H, &D.H, &B.H
-		};
-
 	protected:
 
 		u16 ReadRMOperand(u8 operandSize) const;
