@@ -1164,11 +1164,7 @@ namespace i8086
 
 		const s8 offset = Fetch();
 
-		if (SF.O)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.O, offset, this);
 	}
 
 	// JNO rel8
@@ -1176,11 +1172,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (!SF.O)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(!SF.O, offset, this);
 	}
 
 	// JC rel8
@@ -1188,11 +1180,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (SF.C)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.C, offset, this);
 	}
 
 	// JNC rel8
@@ -1200,11 +1188,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (!SF.C)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(!SF.C, offset, this);
 	}
 
 	// JZ rel8
@@ -1212,11 +1196,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (SF.Z)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.Z, offset, this);
 	}
 
 	// JNZ rel8
@@ -1224,11 +1204,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (!SF.Z)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(!SF.Z, offset, this);
 	}
 
 	// JNA rel8
@@ -1236,11 +1212,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (SF.C || SF.Z)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.C || SF.Z, offset, this);
 	}
 
 	// JA rel8
@@ -1248,11 +1220,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (!SF.C && !SF.Z)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(!SF.C && !SF.Z, offset, this);
 	}
 
 	// JS rel8
@@ -1260,11 +1228,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (SF.S)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.S, offset, this);
 	}
 
 	// JNS rel8
@@ -1272,11 +1236,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (!SF.S)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(!SF.S, offset, this);
 	}
 
 	// JP rel8
@@ -1284,11 +1244,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (SF.P)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.P, offset, this);
 	}
 
 	// JNP rel8
@@ -1296,11 +1252,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (!SF.P)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(!SF.P, offset, this);
 	}
 
 	// JL rel8
@@ -1308,11 +1260,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (SF.S != SF.O)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.S != SF.O, offset, this);
 	}
 
 	// JNL rel8
@@ -1320,11 +1268,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (SF.S == SF.O)
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.S == SF.O, offset, this);
 	}
 
 	// JNG rel8
@@ -1332,11 +1276,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (SF.Z || (SF.S != SF.O))
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(SF.Z || (SF.S != SF.O), offset, this);
 	}
 
 	// JG rel8
@@ -1344,11 +1284,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (!SF.Z && (SF.S == SF.O))
-		{
-			IP.X += offset;
-		}
-
+		Instr::JMP_COND(!SF.Z && (SF.S == SF.O), offset, this);
 	}
 
 	// Group 0
@@ -2472,30 +2408,26 @@ namespace i8086
 	// JMP rel16
 	void I8086::JMP_REL16()
 	{
-
 		const u16 offset = Fetch(WORD);
 
-		IP += offset;
-
+		Instr::JMP16(offset, this);
 	}
 
 	// JMP seg:addr
 	void I8086::JMP_FAR()
 	{
+		const u16 address = Fetch(WORD);
+		const u16 segment = Fetch(WORD);
 
-		IP = Fetch(WORD);
-		CS = Fetch(WORD);
-
+		Instr::JMP_FAR(address, segment, this);
 	}
 
 	// JMP rel8
 	void I8086::JMP_REL8()
 	{
-
 		const s8 offset = Fetch();
 
-		IP += offset;
-
+		Instr::JMP8(offset, this);
 	}
 
 	// IN AL, DX

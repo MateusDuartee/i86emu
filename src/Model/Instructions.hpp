@@ -1131,6 +1131,34 @@ namespace i8086
 		}
 
 		/*===========================================================
+		  ==================== Control Transfer =====================
+		  ===========================================================*/
+
+		static void JMP8(s8 offset, CPUState* state)
+		{
+			state->IP += offset;
+		}
+
+		static void JMP16(s16 offset, CPUState* state)
+		{
+			state->IP += offset;
+		}
+
+		static void JMP_FAR(u16 address, u16 segment, CPUState* state)
+		{
+			state->IP = address;
+			state->CS = segment;
+		}
+
+		static void JMP_COND(bool condition, s8 offset, CPUState* state)
+		{
+			if (condition)
+			{
+				JMP8(offset, state);
+			}
+		}
+
+		/*===========================================================
 		  ======================= Interrupt =========================
 		  ==========================================================*/
 
