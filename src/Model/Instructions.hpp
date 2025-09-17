@@ -1159,6 +1159,93 @@ namespace i8086
 		}
 
 		/*===========================================================
+		  ================== Instructions groups ====================
+		  ===========================================================*/
+
+		/* The instructions groups are instructions that share the same opcode but
+		   differ in the operation they perform based on the value of the Reg field
+		   in the ModR/M byte. */
+
+		/**
+		 * @brief Executes an instruction from a group of instructions based on the value of the Reg field in the ModR/M byte.
+		 *
+		 * @param op1 The first operand.
+		 * @param op2 The second operand.
+		 * @param state The current CPU state.
+		 * @return The result of the executed instruction.
+		 * 
+		 * @details
+		 * This method executes one of the group instructions (ADD, OR, ADC, SBB, AND, SUB, XOR, CMP) based on the value of the Reg field in the ModR/M byte.
+		 * The specific instruction to be executed is determined by the value of state->Reg.
+		 * The method takes two operands (op1 and op2) and the current CPU state as parameters.
+		 * It returns the result of the executed instruction.
+		 * 
+		 * @par Affected flags:
+		 * - Carry Flag (CF)
+		 * - Parity Flag (PF)
+		 * - Auxiliary Carry Flag (AF)
+		 * - Zero Flag (ZF)
+		 * - Sign Flag (SF)
+		 * - Overflow Flag (OF)
+		 * 
+		 * @par How the flags are affected:
+		 * - The flags are affected according to the specific instruction executed.
+		 * @see Instr::ADD for details on flag effects for the ADD instruction.
+		 * @see Instr::OR for details on flag effects for the OR instruction.
+		 * @see Instr::ADC for details on flag effects for the ADC instruction.
+		 * @see Instr::SBB for details on flag effects for the SBB instruction.
+		 * @see Instr::AND for details on flag effects for the AND instruction.
+		 * @see Instr::SUB for details on flag effects for the SUB instruction.
+		 * @see Instr::XOR for details on flag effects for the XOR instruction.
+		 * 
+		 * @note
+		 * The CMP instruction (when Reg is 7) does not modify the destination operand (op1) but updates the flags based on the comparison.
+		 * This group is used for 0x80/0x81/0x82/0x83 opcodes because they use the same instructions.
+		 */
+		static u16 GRP0(u16 op1, u16 op2, CPUState* state)
+		{
+			u16 result{};
+
+			switch (state->Reg)
+			{
+			case 0:
+				result = Instr::ADD(op1, op2, state);
+				break;
+
+			case 1:
+				result = Instr::OR(op1, op2, state);
+				break;
+
+			case 2:
+				result = Instr::ADC(op1, op2, state);
+				break;
+
+			case 3:
+				result = Instr::SBB(op1, op2, state);
+				break;
+
+			case 4:
+				result = Instr::AND(op1, op2, state);
+				break;
+
+			case 5:
+				result = Instr::SUB(op1, op2, state);
+				break;
+
+			case 6:
+				result = Instr::XOR(op1, op2, state);
+				break;
+
+			case 7:
+				Instr::SUB(op1, op2, state);
+				result = op1;
+				return;
+			}
+
+			return result;
+		}
+
+		/*===========================================================
 		  ======================= Interrupt =========================
 		  ==========================================================*/
 

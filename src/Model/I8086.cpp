@@ -1297,61 +1297,14 @@ namespace i8086
 		const u8 op1 = ReadRMOperand(BYTE);
 		const u8 op2 = Fetch();
 
-		u8 result{};
-
-		switch (Reg)
-		{
-
-		case 0:
-			// ADD r/m8, i8
-			result = Instr::ADD(op1, op2, this);
-			break;
-
-		case 1:
-			// OR r/m8, i8
-			result = Instr::OR(op1, op2, this);
-			break;
-
-		case 2:
-			// ADC r/m8, i8
-			result = Instr::ADC(op1, op2, this);
-			break;
-
-		case 3:
-			// SBB r/m8, i8
-			result = Instr::SBB(op1, op2, this);
-			break;
-
-		case 4:
-			// AND r/m8, i8
-			result = Instr::AND(op1, op2, this);
-			break;
-
-		case 5:
-			// SUB r/m8, i8
-			result = Instr::SUB(op1, op2, this);
-			break;
-
-		case 6:
-			// XOR r/m8, i8
-			result = Instr::XOR(op1, op2, this);
-			break;
-
-		case 7:
-			// CMP r/m8, i8
-			Instr::SUB(op1, op2, this);
-			result = op1;
-			return;
-		}
+		const u8 result = Instr::GRP0(op1, op2, this) & 0xFF;
 
 		WriteRMOperand(result, BYTE);
-
 	}
 
 	// Group 1
 	void I8086::GROUP1()
 	{
-
 		FetchModrm();
 
 		CalculateEffectiveAddress();
@@ -1359,55 +1312,9 @@ namespace i8086
 		const u16 op1 = ReadRMOperand(WORD);
 		const u16 op2 = Fetch(WORD);
 
-		u16 result{};
-
-		switch (Reg)
-		{
-		case 0:
-			// ADD r/m16, i16
-			result = Instr::ADD(op1, op2, this);
-			break;
-
-		case 1:
-			// OR r/m16, i16
-			result = Instr::OR(op1, op2, this);
-			break;
-
-		case 2:
-			// ADC r/m16, i16
-			result = Instr::ADC(op1, op2, this);
-			break;
-
-		case 3:
-			// SBB r/m16, i16
-			result = Instr::SBB(op1, op2, this);
-			break;
-
-		case 4:
-			// AND r/m16, i16
-			result = Instr::AND(op1, op2, this);
-			break;
-
-		case 5:
-			// SUB r/m16, i16
-			result = Instr::SUB(op1, op2, this);
-			break;
-
-		case 6:
-			// XOR r/m16, i16
-			result = Instr::XOR(op1, op2, this);
-			break;
-
-		case 7:
-			// CMP r/m16, i16
-			Instr::SUB(op1, op2, this);
-			result = op1;
-			return;
-
-		}
+		const u16 result = Instr::GRP0(op1, op2, this);
 
 		WriteRMOperand(result, WORD);
-
 	}
 
 	// Group 2 - this is a duplicate of Group 0
@@ -1426,56 +1333,9 @@ namespace i8086
 		const u16 op1 = ReadRMOperand(WORD);
 		const s16 op2 = static_cast<s8>(Fetch());
 
-		u16 result{};
-
-		switch (Reg)
-		{
-
-		case 0:
-			// ADD r/m16, s8
-			result = Instr::ADD(op1, op2, this);
-			break;
-
-		case 1:
-			// OR r/m16, s8
-			result = Instr::OR(op1, op2, this);
-			break;
-
-		case 2:
-			// ADC r/m16, s8
-			result = Instr::ADC(op1, op2, this);
-			break;
-
-		case 3:
-			// SBB r/m16, s8
-			result = Instr::SBB(op1, op2, this);
-			break;
-
-		case 4:
-			// AND r/m16, s8
-			result = Instr::AND(op1, op2, this);
-			break;
-
-		case 5:
-			// SUB r/m16, s8
-			result = Instr::SUB(op1, op2, this);
-			break;
-
-		case 6:
-			// XOR r/m16, s8
-			result = Instr::XOR(op1, op2, this);
-			break;
-
-		case 7:
-			// CMP r/m16, s8
-			Instr::SUB(op1, op2, this);
-			result = op1;
-			return;
-
-		}
+		const u16 result = Instr::GRP0(op1, op2, this);
 
 		WriteRMOperand(result, WORD);
-
 	}
 
 	// TEST r/m8, r8
@@ -1489,7 +1349,7 @@ namespace i8086
 		const u8 op2 = GetReg(Reg, BYTE);
 
 		Instr::AND(op1, op2, this);
-
+		
 	}
 
 	// XCHG R, R/M
