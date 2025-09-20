@@ -1349,7 +1349,6 @@ namespace i8086
 		const u8 op2 = GetReg(Reg, BYTE);
 
 		Instr::AND(op1, op2, this);
-		
 	}
 
 	// XCHG R, R/M
@@ -1362,16 +1361,8 @@ namespace i8086
 		const u16 temp = ReadRMOperand(OperandSize);
 		const u16 regValue = GetReg(Reg, OperandSize);
 
-		if (Mod != 3)
-		{
-			mBus->Write(EA, regValue, mSeg, OperandSize);
-			SetReg(Reg, temp, OperandSize);
-			return;
-		}
-
-		SetReg(Rm, regValue, OperandSize);
+		WriteRMOperand(regValue, OperandSize);
 		SetReg(Reg, temp, OperandSize);
-
 	}
 
 	// MOV r/m8, r8
@@ -1535,60 +1526,43 @@ namespace i8086
 	// XCHG CX
 	void I8086::XCHG_CX()
 	{
-		const u16 temp = A.X;
-		A = C;
-		C = temp;
+		Instr::XCHG_AX_Reg(C, this);
 	}
 
 	// XCHG DX
 	void I8086::XCHG_DX()
 	{
-		const u16 temp = A.X;
-		A = D;
-		D = temp;
+		Instr::XCHG_AX_Reg(D, this);
 	}
 
 	// XCHG BX
 	void I8086::XCHG_BX()
 	{
-		const u16 temp = A.X;
-		A = B;
-		B = temp;
-
+		Instr::XCHG_AX_Reg(B, this);
 	}
 
 	// XCHG SP
 	void I8086::XCHG_SP()
 	{
-		const u16 temp = A.X;
-		A  = SP;
-		SP = temp;
-
+		Instr::XCHG_AX_Reg(SP, this);
 	}
 
 	// XCHG BP
 	void I8086::XCHG_BP()
 	{
-		const u16 temp = A.X;
-		A  = BP;
-		BP = temp;
+		Instr::XCHG_AX_Reg(BP, this);
 	}
 
 	// XCHG SI
 	void I8086::XCHG_SI()
 	{
-		const u16 temp = A.X;
-		A  = SI;
-		SI = temp;
-
+		Instr::XCHG_AX_Reg(SI, this);
 	}
 
 	// XCHG DI
 	void I8086::XCHG_DI()
 	{
-		const u16 temp = A.X;
-		A  = DI;
-		DI = temp;
+		Instr::XCHG_AX_Reg(DI, this);
 	}
 
 	// CBW

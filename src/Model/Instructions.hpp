@@ -1130,6 +1130,23 @@ namespace i8086
 			return bus->Read(state->SP.X - 2, state->SS, WORD);
 		}
 
+		/**
+		 * @brief Exchanges the AX register with another register.
+		 *
+		 * @param reg The register to exchange with the AX register.
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method exchanges the values of the specified register and the AX register.
+		 * It uses a temporary variable to hold one of the values during the exchange.
+		 */
+		static void XCHG_AX_Reg(Register& reg, CPUState* state)
+		{
+			const Register temp = state->A;
+			state->A = reg;
+			reg = temp;
+		}
+
 		/*===========================================================
 		  ==================== Control Transfer =====================
 		  ===========================================================*/
