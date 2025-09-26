@@ -11,6 +11,8 @@
 namespace i8086
 {
 
+	/* Operation size in bits */
+
 	constexpr u8 WORD = 16;
 	constexpr u8 BYTE = 8;
 	
@@ -1151,27 +1153,69 @@ namespace i8086
 		  ==================== Control Transfer =====================
 		  ===========================================================*/
 
-		static void JMP8(s8 offset, CPUState* state)
+		/**
+		 * @brief Performs an unconditional jump to a new instruction pointer based on an 8-bit signed offset.
+		 * 
+		 * @param offset The 8-bit signed offset to add to the current instruction pointer (IP).
+		 * @param state The current CPU state.
+		 * 
+		 * @details
+		 * This method updates the instruction pointer (IP) by adding the provided 8-bit signed offset to it.
+		 * This allows for short jumps within a range of -128 to +127 bytes from the current IP.
+		 */
+		static void JMP_SHORT(s8 offset, CPUState* state)
 		{
 			state->IP += offset;
 		}
 
-		static void JMP16(s16 offset, CPUState* state)
+		/**
+		 * @brief Performs an unconditional jump to a new instruction pointer based on a 16-bit signed offset.
+		 * 
+		 * @param offset The 16-bit signed offset to add to the current instruction pointer (IP).
+		 * @param state The current CPU state.
+		 * 
+		 * @details
+		 * This method updates the instruction pointer (IP) by adding the provided 16-bit signed offset to it.
+		 * This allows for near jumps within a range of -32,768 to +32,767 bytes from the current IP.
+		 */
+		static void JMP_NEAR(s16 offset, CPUState* state)
 		{
 			state->IP += offset;
 		}
 
+		/**
+		 * @brief Performs an unconditional far jump to a new code segment and instruction pointer.
+		 * 
+		 * @param address The new instruction pointer (IP) to jump to.
+		 * @param segment The new code segment (CS) to jump to.
+		 * @param state The current CPU state.
+		 * 
+		 * @details
+		 * This method updates both the instruction pointer (IP) and the code segment (CS) to the specified values,
+		 * allowing for a far jump to a different segment in memory.
+		 */
 		static void JMP_FAR(u16 address, u16 segment, CPUState* state)
 		{
 			state->IP = address;
 			state->CS = segment;
 		}
 
+		/**
+		 * @brief Performs a conditional jump based on a specified condition and an 8-bit signed offset.
+		 * 
+		 * @param condition The condition to evaluate for the jump (true to jump, false to not jump).
+		 * @param offset The 8-bit signed offset to add to the current instruction pointer (IP) if the condition is true.
+		 * @param state The current CPU state.
+		 * 
+		 * @details
+		 * This method checks the provided condition, and if it evaluates to true, it updates the instruction pointer (IP)
+		 * by adding the provided 8-bit signed offset to it. If the condition is false, the IP remains unchanged.
+		 */
 		static void JMP_COND(bool condition, s8 offset, CPUState* state)
 		{
 			if (condition)
 			{
-				JMP8(offset, state);
+				JMP_SHORT(offset, state);
 			}
 		}
 
