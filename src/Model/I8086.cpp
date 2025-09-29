@@ -1655,41 +1655,13 @@ namespace i8086
 	// CMPSB
 	void I8086::CMPSB()
 	{
-
-		Instr::SUB(mBus->Read(SI.X, DS, BYTE), mBus->Read(DI.X, ES, BYTE), this);
-
-		if (SF.D)
-		{
-			SI--;
-			DI--;
-		}
-
-		else
-		{
-			SI++;
-			DI++;
-		}
-
+		Instr::CMPSB(this, mBus);
 	}
 
 	// CMPSW
 	void I8086::CMPSW()
 	{
-
-		Instr::SUB(mBus->Read(SI.X, DS, WORD), mBus->Read(DI.X, ES, WORD), this);
-
-		if (SF.D)
-		{
-			SI -= 2;
-			DI -= 2;
-		}
-
-		else
-		{
-			SI += 2;
-			DI += 2;
-		}
-
+		Instr::CMPSW(this, mBus);
 	}
 
 	// TEST AL, i8

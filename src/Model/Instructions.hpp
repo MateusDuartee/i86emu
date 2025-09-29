@@ -1418,14 +1418,82 @@ namespace i8086
 
 			if (state->SF.D)
 			{
-				state->SI.X -= 2;
-				state->DI.X -= 2;
+				state->SI -= 2;
+				state->DI -= 2;
 			}
 
 			else
 			{
-				state->SI.X += 2;
-				state->DI.X += 2;
+				state->SI += 2;
+				state->DI += 2;
+			}
+		}
+
+		/**
+		 * @brief Compares a byte from the source string with a byte from the destination string.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading memory.
+		 * 
+		 * @details
+		 * This method compares a byte from the memory location pointed to by the SI register in the DS segment
+		 * with a byte from the memory location pointed to by the DI register in the ES segment.
+		 * The comparison is performed by subtracting the destination byte from the source byte and updating the flags register (SF) accordingly.
+		 * After the comparison, the SI and DI registers are updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), SI and DI are decremented; if DF is clear (0), they are incremented.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void CMPSB(CPUState* state, MemoryBus* bus)
+		{
+			const u8 sourceByte = bus->Read(state->SI.X, state->DS, BYTE);
+			const u8 destinationByte = bus->Read(state->DI.X, state->ES, BYTE);
+
+			Instr::SUB(sourceByte, destinationByte, state);
+
+			if (state->SF.D)
+			{
+				--state->SI;
+				--state->DI;
+			}
+
+			else
+			{
+				++state->SI;
+				++state->DI;
+			}
+		}
+
+		/**
+		 * @brief Compares a word (2 bytes) from the source string with a word from the destination string.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading memory.
+		 * 
+		 * @details
+		 * This method compares a word (2 bytes) from the memory location pointed to by the SI register in the DS segment
+		 * with a word from the memory location pointed to by the DI register in the ES segment.
+		 * The comparison is performed by subtracting the destination word from the source word and updating the flags register (SF) accordingly.
+		 * After the comparison, the SI and DI registers are updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), SI and DI are decremented by 2; if DF is clear (0), they are incremented by 2.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void CMPSW(CPUState* state, MemoryBus* bus)
+		{
+			const u16 sourceWord = bus->Read(state->SI.X, state->DS, WORD);
+			const u16 destinationWord = bus->Read(state->DI.X, state->ES, WORD);
+
+			Instr::SUB(sourceWord, destinationWord, state);
+
+			if (state->SF.D)
+			{
+				state->SI -= 2;
+				state->DI -= 2;
+			}
+
+			else
+			{
+				state->SI += 2;
+				state->DI += 2;
 			}
 		}
 
