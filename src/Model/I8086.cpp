@@ -1568,33 +1568,13 @@ namespace i8086
 	// CBW
 	void I8086::CBW()
 	{
-
-		if (A.L & 0x80)
-		{
-			A.H = 0xFF;
-		}
-
-		else
-		{
-			A.H = 0x00;
-		}
-
+		Instr::CBW(this);
 	}
 
 	// CWD
 	void I8086::CWD()
 	{
-
-		if (A.H & 0x80)
-		{
-			D.X = 0xFFFF;
-		}
-
-		else
-		{
-			D.X = 0x0000;
-		}
-
+		Instr::CWD(this);
 	}
 
 	// CALL FAR [addr]

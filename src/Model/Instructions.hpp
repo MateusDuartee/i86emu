@@ -470,6 +470,50 @@ namespace i8086
 			state->SF.CheckParity(state->A.L);
 		}
 
+		/**
+		 * @brief Convert Byte to Word (CBW) instruction.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method sign-extends the value in the AL register to the AX register.
+		 * If the most significant bit of AL is set, AH is set to 0xFF; otherwise, AH is set to 0x00.
+		 */
+		static void CBW(CPUState* state)
+		{
+			if (state->A.L & 0x80)
+			{
+				state->A.H = 0xFF;
+			}
+
+			else
+			{
+				state->A.H = 0x00;
+			}
+		}
+
+		/**
+		 * @brief Convert Word to Doubleword (CWD) instruction.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method sign-extends the value in the AX register to the DX:AX register pair.
+		 * If the most significant bit of AX is set, DX is set to 0xFFFF; otherwise, DX is set to 0x0000.
+		 */
+		static void CWD(CPUState* state)
+		{
+			if (state->A.H & 0x80)
+			{
+				state->D.X = 0xFFFF;
+			}
+
+			else
+			{
+				state->D.X = 0x0000;
+			}
+		}
+
 		/*============================================================
 		  ==================== Logical Operations ====================
 		  ============================================================*/
