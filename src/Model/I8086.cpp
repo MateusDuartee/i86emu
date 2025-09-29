@@ -1679,37 +1679,13 @@ namespace i8086
 	// STOSB
 	void I8086::STOSB()
 	{
-
-		mBus->Write(DI.X, A.L, ES, BYTE);
-
-		if (SF.D)
-		{
-			DI--;
-		}
-
-		else
-		{
-			DI++;
-		}
-
+		Instr::STOSB(this, mBus);
 	}
 
 	// STOSW
 	void I8086::STOSW()
 	{
-
-		mBus->Write(DI.X, A.X, ES, WORD);
-
-		if (SF.D)
-		{
-			DI -= 2;
-		}
-
-		else
-		{
-			DI += 2;
-		}
-
+		Instr::STOSW(this, mBus);
 	}
 
 	// LODSB

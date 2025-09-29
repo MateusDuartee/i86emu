@@ -1497,6 +1497,60 @@ namespace i8086
 			}
 		}
 
+		/**
+		 * @brief Stores a byte from the AL register into the destination string.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for writing to memory.
+		 * 
+		 * @details
+		 * This method stores the byte from the AL register into the memory location pointed to by the DI register in the ES segment.
+		 * After storing the byte, the DI register is updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), DI is decremented; if DF is clear (0), DI is incremented.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void STOSB(CPUState* state, MemoryBus* bus)
+		{
+			bus->Write(state->DI.X, state->A.L, state->ES, BYTE);
+
+			if (state->SF.D)
+			{
+				--state->DI;
+			}
+
+			else
+			{
+				++state->DI;
+			}
+		}
+
+		/**
+		 * @brief Stores a word (2 bytes) from the AX register into the destination string.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for writing to memory.
+		 * 
+		 * @details
+		 * This method stores the word (2 bytes) from the AX register into the memory location pointed to by the DI register in the ES segment.
+		 * After storing the word, the DI register is updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), DI is decremented by 2; if DF is clear (0), DI is incremented by 2.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void STOSW(CPUState* state, MemoryBus* bus)
+		{
+			bus->Write(state->DI.X, state->A.X, state->ES, WORD);
+
+			if (state->SF.D)
+			{
+				state->DI -= 2;
+			}
+
+			else
+			{
+				state->DI += 2;
+			}
+		}
+
 		/*===========================================================
 		  ================== Instructions groups ====================
 		  ===========================================================*/
