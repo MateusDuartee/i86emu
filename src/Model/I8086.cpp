@@ -1643,41 +1643,13 @@ namespace i8086
 	// MOVSB
 	void I8086::MOVSB()
 	{
-
-		mBus->Write(DI.X, mBus->Read(SI.X, DS, BYTE), ES, BYTE);
-
-		if (SF.D)
-		{
-			SI--;
-			DI--;
-		}
-
-		else
-		{
-			SI++;
-			DI++;
-		}
-
+		Instr::MOVSB(this, mBus);
 	}
 
 	// MOVSW
 	void I8086::MOVSW()
 	{
-
-		mBus->Write(DI.X, mBus->Read(SI.X, DS, WORD), ES, WORD);
-
-		if (SF.D)
-		{
-			SI -= 2;
-			DI -= 2;
-		}
-
-		else
-		{
-			SI += 2;
-			DI += 2;
-		}
-
+		Instr::MOVSW(this, mBus);
 	}
 
 	// CMPSB

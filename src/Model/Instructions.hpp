@@ -1362,6 +1362,74 @@ namespace i8086
 		}
 
 		/*===========================================================
+		  =================== String instructions ===================
+		  ===========================================================*/
+
+		/**
+		 * @brief Moves a byte from the source string to the destination string.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading and writing memory.
+		 * 
+		 * @details
+		 * This method moves a byte from the memory location pointed to by the SI register in the DS segment
+		 * to the memory location pointed to by the DI register in the ES segment.
+		 * After the move, the SI and DI registers are updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), SI and DI are decremented; if DF is clear (0), they are incremented.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void MOVSB(CPUState* state, MemoryBus* bus)
+		{
+			const u8 sourceByte = bus->Read(state->SI.X, state->DS, BYTE);
+
+			bus->Write(state->DI.X, sourceByte, state->ES, BYTE);
+
+			if (state->SF.D)
+			{
+				--state->SI;
+				--state->DI;
+			}
+
+			else
+			{
+				++state->SI;
+				++state->DI;
+			}
+		}
+
+		/**
+		 * @brief Moves a word (2 bytes) from the source string to the destination string.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading and writing memory.
+		 * 
+		 * @details
+		 * This method moves a word (2 bytes) from the memory location pointed to by the SI register in the DS segment
+		 * to the memory location pointed to by the DI register in the ES segment.
+		 * After the move, the SI and DI registers are updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), SI and DI are decremented by 2; if DF is clear (0), they are incremented by 2.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void MOVSW(CPUState* state, MemoryBus* bus)
+		{
+			const u16 sourceWord = bus->Read(state->SI.X, state->DS, WORD);
+
+			bus->Write(state->DI.X, sourceWord, state->ES, WORD);
+
+			if (state->SF.D)
+			{
+				state->SI.X -= 2;
+				state->DI.X -= 2;
+			}
+
+			else
+			{
+				state->SI.X += 2;
+				state->DI.X += 2;
+			}
+		}
+
+		/*===========================================================
 		  ================== Instructions groups ====================
 		  ===========================================================*/
 
