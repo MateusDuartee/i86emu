@@ -1263,6 +1263,47 @@ namespace i8086
 			}
 		}
 
+		/**
+		 * @brief Calls a near procedure by pushing the current instruction pointer onto the stack and updating the IP with a signed offset.
+		 * 
+		 * @param offset The 16-bit signed offset to add to the current instruction pointer (IP) for the call.
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for writing to memory.
+		 * 
+		 * @details
+		 * This method simulates a near procedure call by first pushing the current instruction pointer (IP) onto the stack,
+		 * then updating the IP by adding the provided 16-bit signed offset. This allows for calling procedures within
+		 * a range of -32,768 to +32,767 bytes from the current IP.
+		 */
+		static void CALL_NEAR(s16 offset, CPUState* state, MemoryBus* bus)
+		{
+			Instr::PUSH(state->IP, state, bus);
+			state->IP += offset;
+		}
+
+		/**
+		 * @brief Calls a far procedure by pushing the current code segment and instruction pointer onto the stack,
+		 *        then updating the CS and IP with the specified segment and address.
+		 * 
+		 * @param segment The new code segment (CS) to jump to for the call.
+		 * @param address The new instruction pointer (IP) to jump to for the call.
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for writing to memory.
+		 * 
+		 * @details
+		 * This method simulates a far procedure call by first pushing the current code segment (CS) and instruction pointer (IP)
+		 * onto the stack, then updating both the CS and IP to the specified values. This allows for calling procedures in
+		 * different segments of memory.
+		 */
+		static void CALL_FAR(u16 segment, u16 address, CPUState* state, MemoryBus* bus)
+		{
+			Instr::PUSH(state->CS, state, bus);
+			Instr::PUSH(state->IP, state, bus);
+
+			state->IP = address;
+			state->CS = segment;
+		}
+
 		/*===========================================================
 		  ================== Instructions groups ====================
 		  ===========================================================*/

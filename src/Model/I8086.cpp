@@ -1583,12 +1583,7 @@ namespace i8086
 		const u16 addr = Fetch(WORD);
 		const u16 segment = Fetch(WORD);
 
-		Instr::PUSH(CS, this, mBus);
-		Instr::PUSH(IP, this, mBus);
-
-		IP = addr;
-		CS = segment;
-
+		Instr::CALL_FAR(segment, addr, this, mBus);
 	}
 
 	// WAIT - FPU instruction(not implemented)
@@ -2211,12 +2206,9 @@ namespace i8086
 	// CALL rel16
 	void I8086::CALL_REL16()
 	{
-		const u16 offset = Fetch(WORD);
+		const s16 offset = Fetch(WORD);
 
-		Instr::PUSH(IP.X, this, mBus);
-
-		IP += offset;
-
+		Instr::CALL_NEAR(offset, this, mBus);
 	}
 
 	// JMP rel16
