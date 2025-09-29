@@ -1607,15 +1607,13 @@ namespace i8086
 	// SAHF
 	void I8086::SAHF()
 	{
-		const u16 flags = SF.Get();
-
-		SF.Set((flags & 0xFF00) | A.H);
+		Instr::SAHF(this);
 	}
 
 	// LAHF
 	void I8086::LAHF()
 	{
-		A.H = SF.Get() & 0x00FF;
+		Instr::LAHF(this);
 	}
 
 	// MOV AL, [addr]

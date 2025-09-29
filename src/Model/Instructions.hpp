@@ -1221,6 +1221,35 @@ namespace i8086
 			state->SF.Set(Instr::POP(state, bus));
 		}
 
+		/**
+		 * @brief Store AH into Flags.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method stores the value of the AH register into the lower byte of the flags register (SF).
+		 * The upper byte of the flags register remains unchanged.
+		 */
+		static void SAHF(CPUState* state)
+		{
+			const u16 flags = state->SF.Get();
+			state->SF.Set((flags & 0xFF00) | state->A.H);
+		}
+
+		/**
+		 * @brief Load Flags into AH.
+		 *
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method loads the lower byte of the flags register (SF) into the AH register.
+		 */
+		static void LAHF(CPUState* state)
+		{
+			const u16 flags = state->SF.Get();
+			state->A.H = flags & 0x00FF;
+		}
+
 		/*===========================================================
 		  ==================== Control Transfer =====================
 		  ===========================================================*/
