@@ -2222,9 +2222,9 @@ namespace i8086
 	// JMP rel16
 	void I8086::JMP_REL16()
 	{
-		const u16 offset = Fetch(WORD);
+		const s16 offset = Fetch(WORD);
 
-		Instr::JMP16(offset, this);
+		Instr::JMP_NEAR(offset, this);
 	}
 
 	// JMP seg:addr
@@ -2241,7 +2241,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		Instr::JMP8(offset, this);
+		Instr::JMP_SHORT(offset, this);
 	}
 
 	// IN AL, DX
