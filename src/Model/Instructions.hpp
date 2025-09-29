@@ -1193,6 +1193,34 @@ namespace i8086
 			reg = temp;
 		}
 
+		/**
+		 * @brief Pushes the flags register onto the stack.
+		 *
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for writing to memory.
+		 *
+		 * @details
+		 * This method pushes the current state of the flags register onto the stack by calling the PUSH method with the flags value.
+		 */
+		static void PUSHF(CPUState* state, MemoryBus* bus)
+		{
+			Instr::PUSH(state->SF.Get(), state, bus);
+		}
+
+		/**
+		 * @brief Pops a value from the stack into the flags register.
+		 *
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading from memory.
+		 *
+		 * @details
+		 * This method pops a 16-bit value from the stack and updates the flags register with this value.
+		 */
+		static void POPF(CPUState* state, const MemoryBus* bus)
+		{
+			state->SF.Set(Instr::POP(state, bus));
+		}
+
 		/*===========================================================
 		  ==================== Control Transfer =====================
 		  ===========================================================*/

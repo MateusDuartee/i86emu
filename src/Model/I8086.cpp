@@ -1595,15 +1595,13 @@ namespace i8086
 	// PUSHF
 	void I8086::PUSHF()
 	{
-		const u16 flags = SF.Get();
-		Instr::PUSH(flags, this, mBus);
+		Instr::PUSHF(this, mBus);
 	}
 
 	// POPF
 	void I8086::POPF()
 	{
-		SF.Set(mBus->Read(SP.X, SS, WORD));
-		SP.X += 2;
+		Instr::POPF(this, mBus);
 	}
 
 	// SAHF
