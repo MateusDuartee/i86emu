@@ -1703,37 +1703,13 @@ namespace i8086
 	// SCASB
 	void I8086::SCASB()
 	{
-
-		Instr::SUB(mBus->Read(DI.X, ES, BYTE), A.L, this);
-
-		if (SF.D)
-		{
-			DI--;
-		}
-
-		else
-		{
-			DI++;
-		}
-
+		Instr::SCASB(this, mBus);
 	}
 
 	// SCASW
 	void I8086::SCASW()
 	{
-
-		Instr::SUB(mBus->Read(DI.X, ES, WORD), A.X, this);
-
-		if (SF.D)
-		{
-			DI -= 2;
-		}
-
-		else
-		{
-			DI += 2;
-		}
-
+		Instr::SCASW(this, mBus);
 	}
 
 	// MOV AL, i8

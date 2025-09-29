@@ -1605,6 +1605,66 @@ namespace i8086
 			}
 		}
 
+		/**
+		 * @brief Compares a byte from the AL register with a byte from the destination string.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading memory.
+		 * 
+		 * @details
+		 * This method compares the byte in the AL register with a byte from the memory location pointed to by the DI register in the ES segment.
+		 * The comparison is performed by subtracting the destination byte from the AL register and updating the flags register (SF) accordingly.
+		 * After the comparison, the DI register is updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), DI is decremented; if DF is clear (0), DI is incremented.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void SCASB(CPUState* state, MemoryBus* bus)
+		{
+			const u8 destinationByte = bus->Read(state->DI.X, state->ES, BYTE);
+
+			Instr::SUB(destinationByte, state->A.L, state);
+
+			if (state->SF.D)
+			{
+				--state->DI;
+			}
+
+			else
+			{
+				++state->DI;
+			}
+		}
+
+		/**
+		 * @brief Compares a word (2 bytes) from the AX register with a word from the destination string.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading memory.
+		 * 
+		 * @details
+		 * This method compares the word (2 bytes) in the AX register with a word from the memory location pointed to by the DI register in the ES segment.
+		 * The comparison is performed by subtracting the destination word from the AX register and updating the flags register (SF) accordingly.
+		 * After the comparison, the DI register is updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), DI is decremented by 2; if DF is clear (0), DI is incremented by 2.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void SCASW(CPUState* state, MemoryBus* bus)
+		{
+			const u16 destinationWord = bus->Read(state->DI.X, state->ES, WORD);
+
+			Instr::SUB(destinationWord, state->A.X, state);
+
+			if (state->SF.D)
+			{
+				state->DI -= 2;
+			}
+
+			else
+			{
+				state->DI += 2;
+			}
+		}
+
 		/*===========================================================
 		  ================== Instructions groups ====================
 		  ===========================================================*/
