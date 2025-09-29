@@ -1551,6 +1551,60 @@ namespace i8086
 			}
 		}
 
+		/**
+		 * @brief Loads a byte from the source string into the AL register.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading memory.
+		 * 
+		 * @details
+		 * This method loads a byte from the memory location pointed to by the SI register in the DS segment into the AL register.
+		 * After loading the byte, the SI register is updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), SI is decremented; if DF is clear (0), SI is incremented.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void LODSB(CPUState* state, MemoryBus* bus)
+		{
+			state->A.L = bus->Read(state->SI.X, state->DS, BYTE);
+
+			if (state->SF.D)
+			{
+				--state->SI;
+			}
+
+			else
+			{
+				++state->SI;
+			}
+		}
+
+		/**
+		 * @brief Loads a word (2 bytes) from the source string into the AX register.
+		 * 
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading memory.
+		 * 
+		 * @details
+		 * This method loads a word (2 bytes) from the memory location pointed to by the SI register in the DS segment into the AX register.
+		 * After loading the word, the SI register is updated based on the direction flag (DF) in the flags register (SF).
+		 * If DF is set (1), SI is decremented by 2; if DF is clear (0), SI is incremented by 2.
+		 * This allows for string operations to be performed in either direction.
+		 */
+		static void LODSW(CPUState* state, MemoryBus* bus)
+		{
+			state->A.X = bus->Read(state->SI.X, state->DS, WORD);
+
+			if (state->SF.D)
+			{
+				state->SI -= 2;
+			}
+
+			else
+			{
+				state->SI += 2;
+			}
+		}
+
 		/*===========================================================
 		  ================== Instructions groups ====================
 		  ===========================================================*/

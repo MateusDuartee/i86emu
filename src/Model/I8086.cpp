@@ -1691,37 +1691,13 @@ namespace i8086
 	// LODSB
 	void I8086::LODSB()
 	{
-
-		A.L = mBus->Read(SI.X, DS, BYTE);
-
-		if (SF.D)
-		{
-			SI--;
-		}
-
-		else
-		{
-			SI++;
-		}
-
+		Instr::LODSB(this, mBus);
 	}
 
 	// LODSW
 	void I8086::LODSW()
 	{
-
-		A.X = mBus->Read(SI.X, DS, WORD);
-
-		if (SF.D)
-		{
-			SI -= 2;
-		}
-
-		else
-		{
-			SI += 2;
-		}
-
+		Instr::LODSW(this, mBus);
 	}
 
 	// SCASB
