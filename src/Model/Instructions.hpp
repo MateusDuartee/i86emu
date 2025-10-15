@@ -388,8 +388,8 @@ namespace i8086
 			state->A.L = state->A.L % base;
 
 			state->SF.CheckParity(state->A.L);
-			state->SF.CheckZero(state->A.L, 8);
-			state->SF.CheckSign(state->A.L, 8);
+			state->SF.CheckZero(state->A.L, BYTE);
+			state->SF.CheckSign(state->A.L, BYTE);
 		}
 
 		/**
@@ -422,8 +422,8 @@ namespace i8086
 			state->A.H = 0;
 
 			state->SF.CheckParity(state->A.L);
-			state->SF.CheckZero(state->A.L, 8);
-			state->SF.CheckSign(state->A.L, 8);
+			state->SF.CheckZero(state->A.L, BYTE);
+			state->SF.CheckSign(state->A.L, BYTE);
 		}
 
 		/**
@@ -1316,6 +1316,22 @@ namespace i8086
 		{
 			const u16 flags = state->SF.Get();
 			state->A.H = flags & 0x00FF;
+		}
+
+		/**
+		 * @brief Translates a byte in memory using the AL register as an index and stores the result back in AL.
+		 *
+		 * @param state The current CPU state.
+		 * @param bus The memory bus for reading from memory.
+		 *
+		 * @details
+		 * This method calculates an effective address by adding the value of the AL register to the value of the DS segment register.
+		 * It then reads a byte from this effective address in memory and stores it back into the AL register.
+		 */
+		static void XLAT(CPUState* state, const MemoryBus* bus)
+		{
+			const u16 offset = state->B.X + state->A.L;
+			state->A.L = bus->Read(offset, state->DS, BYTE);
 		}
 
 		/*===========================================================

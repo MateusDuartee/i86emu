@@ -1972,8 +1972,7 @@ namespace i8086
 	// XLAT
 	void I8086::XLAT()
 	{
-		const u16 offset = B.X + A.L;
-		A.L = mBus->Read(offset, DS, BYTE);
+		Instr::XLAT(this, mBus);
 	}
 
 	// ESC - FPU instruction(not implemented)
