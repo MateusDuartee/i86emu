@@ -2028,11 +2028,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		if (C.X == 0)
-		{
-			IP += offset;
-		}
-
+		Instr::JMP_COND(C.X == 0, offset, this);
 	}
 
 	// IN AL, i8
