@@ -1958,26 +1958,15 @@ namespace i8086
 	{
 		const u8 base = Fetch();
 
-		A.H = A.L / base;
-		A.L = A.L % base;
-
-		SF.CheckParity(A.L);
-		SF.CheckZero(A.L, 8);
-		SF.CheckSign(A.L, 8);
-
+		Instr::AAM(base, this);
 	}
 
 	// AAD
 	void I8086::AAD()
 	{
-		u8 base = Fetch();
+		const u8 base = Fetch();
 
-		A.L = GET_L((A.H * 10) + A.L);
-		A.H = 0;
-
-		SF.CheckParity(A.L);
-		SF.CheckZero(A.L, 8);
-		SF.CheckSign(A.L, 8);
+		Instr::AAD(base, this);
 	}
 
 	// XLAT

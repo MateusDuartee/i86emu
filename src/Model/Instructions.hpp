@@ -359,6 +359,74 @@ namespace i8086
 		}
 
 		/**
+		 * @brief Adjust AX after Multiply (AAM) instruction.
+		 *
+		 * @param base The base value for adjustment (typically 10 for decimal).
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method adjusts the value in the AX register after a multiplication operation to separate the result into two BCD digits.
+		 * It modifies both the AL and AH registers and updates the CPU flags accordingly.
+		 * 
+		 * @par Affected flags:
+		 * - Parity Flag (PF)
+		 * - Zero Flag (ZF)
+		 * - Sign Flag (SF)
+		 *
+		 * @par How the flags are affected:
+		 * - Parity flag is set if the least significant byte of the result has an even number of bits set.
+		 * - Zero flag is set if the result is zero.
+		 * - Sign flag is set if the most significant bit of the result is set.
+		 * 
+		 * @note
+		 * The AAM instruction assumes that the value in AL is the result of a previous multiplication operation.
+		 * If AL contains a non-multiplication result, the outcome after AAM may not be meaningful.
+		 */
+		static void AAM(u8 base, CPUState* state)
+		{
+			state->A.H = state->A.L / base;
+			state->A.L = state->A.L % base;
+
+			state->SF.CheckParity(state->A.L);
+			state->SF.CheckZero(state->A.L, 8);
+			state->SF.CheckSign(state->A.L, 8);
+		}
+
+		/**
+		 * @brief Adjust AX before Divide (AAD) instruction.
+		 *
+		 * @param base The base value for adjustment (typically 10 for decimal).
+		 * @param state The current CPU state.
+		 *
+		 * @details
+		 * This method adjusts the value in the AX register before a division operation to combine two BCD digits into a single binary value.
+		 * It modifies both the AL and AH registers and updates the CPU flags accordingly.
+		 * 
+		 * @par Affected flags:
+		 * - Parity Flag (PF)
+		 * - Zero Flag (ZF)
+		 * - Sign Flag (SF)
+		 *
+		 * @par How the flags are affected:
+		 * - Parity flag is set if the least significant byte of the result has an even number of bits set.
+		 * - Zero flag is set if the result is zero.
+		 * - Sign flag is set if the most significant bit of the result is set.
+		 * 
+		 * @note
+		 * The AAD instruction assumes that the values in AL and AH represent valid BCD digits.
+		 * If they contain non-BCD values, the result after AAD may not be meaningful.
+		 */
+		static void AAD(u8 base, CPUState* state)
+		{
+			state->A.L = (state->A.H * base) + state->A.L;
+			state->A.H = 0;
+
+			state->SF.CheckParity(state->A.L);
+			state->SF.CheckZero(state->A.L, 8);
+			state->SF.CheckSign(state->A.L, 8);
+		}
+
+		/**
 		 * @brief Decimal Adjust for Addition (DAA) instruction.
 		 *
 		 * @param state The current CPU state.
