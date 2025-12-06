@@ -1768,7 +1768,6 @@ namespace i8086
 		 * @details
 		 * This method executes one of the group instructions (ADD, OR, ADC, SBB, AND, SUB, XOR, CMP) based on the value of the Reg field in the ModR/M byte.
 		 * The specific instruction to be executed is determined by the value of state->Reg.
-		 * The method takes two operands (op1 and op2) and the current CPU state as parameters.
 		 * It returns the result of the executed instruction.
 		 * 
 		 * @par Affected flags:
@@ -1831,6 +1830,82 @@ namespace i8086
 				Instr::SUB(op1, op2, state);
 				result = op1;
 				return;
+			}
+
+			return result;
+		}
+
+		/**
+		 * @brief Executes a shift/rotate instruction from a group of instructions based on the value of the Reg field in the ModR/M byte.
+		 *
+		 * @param op1 The operand to be shifted or rotated.
+		 * @param op2 The number of bits to shift or rotate.
+		 * @param state The current CPU state.
+		 * @return The result of the executed shift/rotate instruction.
+		 * 
+		 * @details
+		 * This method executes one of the group instructions (ROL, ROR, RCL, RCR, SHL, SHR, SAR) based on the value of the Reg field in the ModR/M byte.
+		 * The specific instruction to be executed is determined by the value of state->Reg.
+		 * It returns the result of the executed instruction.
+		 * 
+		 * @par Affected flags:
+		 * - Carry Flag (CF)
+		 * - Overflow Flag (OF)
+		 * - Parity Flag (PF)
+		 * - Zero Flag (ZF)
+		 * - Sign Flag (SF)
+		 * 
+		 * @par How the flags are affected:
+		 * - The flags are affected according to the specific instruction executed.
+		 * @see Instr::ROL for details on flag effects for the ROL instruction.
+		 * @see Instr::ROR for details on flag effects for the ROR instruction.
+		 * @see Instr::RCL for details on flag effects for the RCL instruction.
+		 * @see Instr::RCR for details on flag effects for the RCR instruction.
+		 * @see Instr::SHL for details on flag effects for the SHL instruction.
+		 * @see Instr::SHR for details on flag effects for the SHR instruction.
+		 * @see Instr::SAR for details on flag effects for the SAR instruction.
+		 * 
+		 * @note
+		 * The NOP operation (when Reg is 6) does not modify the operand or affect any flags.
+		 * This group is used for the 0xD0/0xD1/0xD2/0xD3 opcodes because they use the same instructions.
+		 */
+		static u16 GRP9(u16 op1, u8 op2, CPUState* state)
+		{
+			u16 result{};
+
+			switch (state->Reg)
+			{
+			case 0:
+				result = Instr::ROL(op1, op2, state);
+				break;
+
+			case 1:
+				result = Instr::ROR(op1, op2, state);
+				break;
+
+			case 2:
+				result = Instr::RCL(op1, op2, state);
+				break;
+
+			case 3:
+				result = Instr::RCR(op1, op2, state);
+				break;
+
+			case 4:
+				result = Instr::SHL(op1, op2, state);
+				break;
+
+			case 5:
+				result = Instr::SHR(op1, op2, state);
+				break;
+
+			case 6:
+				result = op1; // NOP
+				break;
+
+			case 7:
+				result = Instr::SAR(op1, op2, state);
+				break;
 			}
 
 			return result;

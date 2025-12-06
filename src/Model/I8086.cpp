@@ -736,7 +736,6 @@ namespace i8086
 		const u16 result = Instr::SBB(ReadRMOperand(OperandSize), GetReg(Reg, OperandSize), this);
 
 		WriteRMOperand(result, OperandSize);
-
 	}
 
 	// SBB r8, r/m8
@@ -749,7 +748,6 @@ namespace i8086
 		const u16 result = Instr::SBB(GetReg(Reg, OperandSize), ReadRMOperand(OperandSize), this);
 
 		SetReg(Reg, result, OperandSize);
-
 	}
 
 	// SBB AL, i8
@@ -786,7 +784,6 @@ namespace i8086
 		const u16 result = Instr::AND(ReadRMOperand(OperandSize), GetReg(Reg, OperandSize), this);
 
 		WriteRMOperand(result, OperandSize);
-
 	}
 
 	// AND r8, r/m8
@@ -799,7 +796,6 @@ namespace i8086
 		const u16 result = Instr::AND(GetReg(Reg, OperandSize), ReadRMOperand(OperandSize), this);
 
 		SetReg(Reg, result, OperandSize);
-
 	}
 
 	// AND AL, i8
@@ -835,7 +831,6 @@ namespace i8086
 		const u16 result = Instr::SUB(ReadRMOperand(OperandSize), GetReg(Reg, OperandSize), this);
 
 		WriteRMOperand(result, OperandSize);
-
 	}
 
 	// SUB r8, r/m8
@@ -848,7 +843,6 @@ namespace i8086
 		const u16 result = Instr::SUB(GetReg(Reg, OperandSize), ReadRMOperand(OperandSize), this);
 
 		SetReg(Reg, result, OperandSize);
-
 	}
 
 	// SUB AL, i8
@@ -884,7 +878,6 @@ namespace i8086
 		const u16 result = Instr::XOR(ReadRMOperand(OperandSize), GetReg(Reg, OperandSize), this);
 
 		WriteRMOperand(result, OperandSize);
-
 	}
 
 	// XOR r8, r/m8
@@ -897,7 +890,6 @@ namespace i8086
 		const u16 result = Instr::XOR(GetReg(Reg, OperandSize), ReadRMOperand(OperandSize), this);
 
 		SetReg(Reg, result, OperandSize);
-
 	}
 
 	// XOR AL, i8
@@ -1161,7 +1153,6 @@ namespace i8086
 	// JO rel8
 	void I8086::JO_REL8()
 	{
-
 		const s8 offset = Fetch();
 
 		Instr::JMP_COND(SF.O, offset, this);
@@ -1368,19 +1359,16 @@ namespace i8086
 	// MOV r/m8, r8
 	void I8086::MOV_RM_R()
 	{
-
 		FetchModrm();
 
 		CalculateEffectiveAddress();
 
 		WriteRMOperand(GetReg(Reg, BYTE), BYTE);
-
 	}
 
 	// MOV r8, r/m8
 	void I8086::MOV_R_RM()
 	{
-
 		FetchModrm();
 
 		CalculateEffectiveAddress();
@@ -1388,7 +1376,6 @@ namespace i8086
 		const u8 op2 = ReadRMOperand(BYTE);
 
 		SetReg(Reg, op2, BYTE);
-
 	}
 
 	// Group 4
@@ -1434,13 +1421,11 @@ namespace i8086
 			return;
 
 		}
-
 	}
 
 	// LEA r16, r/m16
 	void I8086::LEA_R16_RM16()
 	{
-		
 		FetchModrm();
 		
 		if (Mod != 3)
@@ -1456,7 +1441,6 @@ namespace i8086
 	// Group 5
 	void I8086::GROUP5()
 	{
-
 		FetchModrm();
 
 		CalculateEffectiveAddress();
@@ -1497,7 +1481,6 @@ namespace i8086
 		default:
 			// No operation for other cases
 			return;
-
 		}
 	}
 
@@ -1513,7 +1496,6 @@ namespace i8086
 			CalculateEffectiveAddress();
 
 			WriteRMOperand(Instr::POP(this, mBus), WORD);
-			
 		}
 	}
 
@@ -1846,7 +1828,6 @@ namespace i8086
 		SetReg(Reg, mBus->Read(EA, mSeg, WORD), WORD);
 
 		DS = mBus->Read(EA + 2, mSeg, WORD);
-
 	}
 
 	// Group 7
@@ -1888,7 +1869,6 @@ namespace i8086
 		Instr::POP(CS, this, mBus);
 
 		SP += offset;
-
 	}
 
 	// RETF
@@ -1932,25 +1912,57 @@ namespace i8086
 	// Group 9
 	void I8086::GROUP9()
 	{
+		FetchModrm();
 
+		CalculateEffectiveAddress();
+
+		const u8 op1 = ReadRMOperand(BYTE);
+
+		const u8 result = Instr::GRP9(op1, 1, this) & 0xFF;
+
+		WriteRMOperand(result, BYTE);
 	}
 
 	// Group 10
 	void I8086::GROUP10()
 	{
+		FetchModrm();
 
+		CalculateEffectiveAddress();
+
+		const u16 op1 = ReadRMOperand(WORD);
+
+		const u16 result = Instr::GRP9(op1, 1, this);
+
+		WriteRMOperand(result, WORD);
 	}
 
 	// Group 11
 	void I8086::GROUP11()
 	{
+		FetchModrm();
 
+		CalculateEffectiveAddress();
+
+		const u8 op1 = ReadRMOperand(BYTE);
+
+		const u8 result = Instr::GRP9(op1, C.L, this);
+
+		WriteRMOperand(result, BYTE);
 	}
 
 	// Group 12
 	void I8086::GROUP12()
 	{
+		FetchModrm();
 
+		CalculateEffectiveAddress();
+
+		const u16 op1 = ReadRMOperand(WORD);
+
+		const u16 result = Instr::GRP9(op1, C.L, this);
+
+		WriteRMOperand(result, WORD);
 	}
 
 	// AAM
@@ -1992,7 +2004,6 @@ namespace i8086
 		{
 			IP += offset;
 		}
-
 	}
 
 	// LOOPE/Z rel8
@@ -2006,7 +2017,6 @@ namespace i8086
 		{
 			IP += offset;
 		}
-
 	}
 
 	// LOOP rel8
@@ -2020,7 +2030,6 @@ namespace i8086
 		{
 			IP += offset;
 		}
-
 	}
 
 	// JCXZ rel8
