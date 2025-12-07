@@ -1445,6 +1445,28 @@ namespace i8086
 			state->CS = segment;
 		}
 
+		/**
+		 * @brief Loops back to a specified offset if the CX register is not zero and a given condition is met.
+		 * 
+		 * @param offset The 8-bit signed offset to add to the current instruction pointer (IP) if condition is met.
+		 * @param condition The extra condition to evaluate for the loop (true to loop, false to not loop).
+		 * @param state The current CPU state.
+		 * 
+		 * @details
+		 * This method decrements the CX register and checks if it is not zero and if the provided condition is true.
+		 * If the condition evaluates to true, it updates the instruction pointer (IP)
+		 * by adding the provided 8-bit signed offset to it, effectively creating a loop.
+		 */
+		static void LOOP(s8 offset, CPUState* state, bool condition = true)
+		{
+			--state->C.X;
+
+			if (state->C.X != 0 && condition)
+			{
+				state->IP += offset;
+			}
+		}
+
 		/*===========================================================
 		  =================== String instructions ===================
 		  ===========================================================*/

@@ -1998,12 +1998,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		C--;
-
-		if (C.X != 0 && !SF.Z)
-		{
-			IP += offset;
-		}
+		Instr::LOOP(offset, this, !SF.Z);
 	}
 
 	// LOOPE/Z rel8
@@ -2011,12 +2006,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 
-		C--;
-
-		if (C.X != 0 && SF.Z)
-		{
-			IP += offset;
-		}
+		Instr::LOOP(offset, this, SF.Z);
 	}
 
 	// LOOP rel8
@@ -2024,12 +2014,7 @@ namespace i8086
 	{
 		const s8 offset = Fetch();
 		
-		C--;
-		
-		if (C.X != 0)
-		{
-			IP += offset;
-		}
+		Instr::LOOP(offset, this);
 	}
 
 	// JCXZ rel8
